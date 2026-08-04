@@ -1,0 +1,54 @@
+project: binwalk-ng-snap
+
+backends:
+  qemu:
+    systems:
+      # build via autopkgtest-buildvm-ubuntu-cloud and mv to ~/.spread/qemu/
+      - ubuntu-24.04-64:
+          username: ubuntu
+          password: ubuntu
+      - ubuntu-26.04-64:
+          username: ubuntu
+          password: ubuntu
+
+path: /spread/binwalk-ng-snap
+
+exclude:
+  - .git
+  - .github
+
+environment:
+  SNAP: binwalk-ng
+  CHANNEL/latest_stable: latest/stable
+  CHANNEL/latest_candidate: latest/candidate
+  CHANNEL/latest_beta: latest/beta
+  CHANNEL/latest_edge: latest/edge
+  CHANNEL/local: local
+
+suites:
+  tests/:
+    summary: spread tests
+    prepare: |
+      # ensure machine is up to date
+      export DEBIAN_FRONTEND=noninteractive
+      # use apt-get to support older Ubuntu releases
+      apt-get update
+      apt-get -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-confdef" upgrade -y
+      # use apt-get to support older Ubuntu releases
+      apt-get autoremove --purge -y
+      apt install -y snapd
+
+    prepare-each: |
+      if [ ${CHANNEL} == local ]; then
+          snap install --dangerous ${SPREAD_PATH}/${SNAP}_*.snap
+      else
+          snap install --channel ${CHANNEL} ${SNAP}
+      fi
+
+    restore-each: |
+      snap remove $SNAP
+      rm -rf snap/$SNAP
+
+
+
+

@@ -1,0 +1,18 @@
+summary: basic smoke test
+
+execute: |
+  # run binwalk on example files - these need to be in somewhere binwalk can
+  # read them from - so do it in home
+  cd $HOME
+  
+  cp $SPREAD_PATH/tests/inputs/* .
+
+  for input in $SPREAD_PATH/tests/inputs/*; do
+    input=$(basename "${input}")
+    echo "binwalk $input..."
+    timeout 5 binwalk-ng.binwalk $input >& >(tee $input.log)
+
+    cat $input.log | NOMATCH ERROR
+
+    rm -f $input.log
+  done
