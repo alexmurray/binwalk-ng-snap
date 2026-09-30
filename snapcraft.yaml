@@ -1,5 +1,6 @@
 name: binwalk-ng
 title: binwalk-ng
+version: 4.0.0
 source-code:
   - https://github.com/alexmurray/binwalk-ng-snap
   - https://github.com/binwalk-ng/binwalk-ng
@@ -91,7 +92,7 @@ parts:
     after: [sasquatch, python-deps, dmg2img, dumpifs]
     plugin: rust
     source: https://github.com/binwalk-ng/binwalk-ng.git
-    source-branch: main
+    source-branch: v$CRAFT_PROJECT_VERSION
     build-packages:
       - build-essential
       - clang
@@ -121,9 +122,6 @@ parts:
       - unrar
       - unyaffs
       - unzip
-    override-pull: |
-      craftctl default
-      craftctl set version=$(git branch --show-current | sed 's|/|-|')-$(git log -n 1 --format=%h)
     override-prime: |
       craftctl default
       # fixup path in 7zip tools
